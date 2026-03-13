@@ -1,0 +1,9 @@
+{
+  "name": "flownote-todo-notes",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "build": "node build.js",
+    "start": "node build.js && npx live-server --open=./index.html"
+  }
+}

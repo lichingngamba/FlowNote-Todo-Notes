@@ -30,10 +30,55 @@
       }
     }
     </script>
-    <script type="module" crossorigin src="./assets/index-CV2p19bQ.js"></script>
-    <link rel="stylesheet" crossorigin href="./assets/index-AIi2cw5b.css">
+    <link rel="stylesheet" crossorigin href="./assets/index-AIi2cw5bQ.css">
   </head>
   <body>
-    <div id="root"></div>
+    <div id="login-overlay" style="position:fixed;inset:0;z-index:9999;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,.35);font-family:system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;">
+      <div style="width:min(430px,92vw);background:#fff;border-radius:12px;padding:24px;box-shadow:0 12px 32px rgba(0,0,0,.2);color:#111;">
+        <h1 style="margin:0 0 10px;font-size:1.4rem;">FlowNote login</h1>
+        <p style="margin:0 0 10px;font-size:.95rem;color:#333;">Enter your app password.</p>
+        <input id="login-password" type="password" placeholder="Password" style="width:100%;padding:10px 12px;border:1px solid #ddd;border-radius:8px;font-size:1rem;margin-bottom:10px;outline:none;" />
+        <button id="login-btn" style="width:100%;padding:10px 12px;border:none;border-radius:8px;background:#0f62fe;color:#fff;font-size:0.95rem;font-weight:600;cursor:pointer;">Login</button>
+        <div id="login-error" style="color:#b00020;margin-top:10px;min-height:1.2rem;">Use password from Vercel env var `FLOWNOTE_LOGIN_PASSWORD` (default `notepad`).</div>
+      </div>
+    </div>
+
+    <div id="root" style="display:none"></div>
+    <script src="./assets/auth-secret.js"></script>
+    <script>
+      const secret = window.FLOWNOTE_LOGIN_SECRET || 'notepad';
+      const loginScreen = document.getElementById('login-overlay');
+      const root = document.getElementById('root');
+      const error = document.getElementById('login-error');
+      const input = document.getElementById('login-password');
+      const button = document.getElementById('login-btn');
+      const sessionKey = 'flownote_authed';
+
+      function unlock() {
+        loginScreen.style.display = 'none';
+        root.style.display = 'block';
+        localStorage.setItem(sessionKey, '1');
+      }
+
+      function fail(msg) {
+        error.textContent = msg;
+      }
+
+      button.addEventListener('click', () => {
+        const value = input.value.trim();
+        if (value === secret) {
+          unlock();
+        } else {
+          fail('Invalid password. Use `notepad` by default.');
+        }
+      });
+
+      input.addEventListener('keyup', (e) => {
+        if (e.key === 'Enter') button.click();
+      });
+
+      if (localStorage.getItem(sessionKey) === '1') unlock();
+    </script>
+    <script type="module" crossorigin src="./assets/index-CV2p19bQ.js"></script>
   </body>
 </html>

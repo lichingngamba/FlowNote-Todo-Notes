@@ -33,9 +33,16 @@ FlowNote is a sleek, keyboard-first productivity app that combines tasks and mar
 - Keyboard shortcuts for rapid workflow
 
 ## 🧭 Getting Started
-1. Open `index.html` in your browser (or use VS Code Live Server).
-2. Start adding tasks and notes.
-3. Use keyboard shortcuts and command palette for speed.
+1. Run `npm run build` (or `node build.js`) to generate `assets/auth-secret.js`.
+2. Open `index.html` in your browser (or use VS Code Live Server).
+3. At login, enter password `notepad` (or set `FLOWNOTE_LOGIN_PASSWORD` in Vercel environment).
+4. Start adding tasks and notes.
+5. Use keyboard shortcuts and command palette for speed.
+
+## 🧩 Vercel deploy notes
+- Set Build Command: `npm run build`
+- Output Directory: `.`
+- Add Environment Variable `FLOWNOTE_LOGIN_PASSWORD=notepad` (or your chosen secret)
 
 ## 💡 Why FlowNote
 FlowNote is built for developers and knowledge workers who need a clean, fast, and focused app for quick planning, tracking, and writing.
