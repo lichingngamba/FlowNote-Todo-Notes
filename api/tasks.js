@@ -1,13 +1,10 @@
 // api/tasks.js — Vercel Serverless Function
-// Handles: GET /api/tasks  POST /api/tasks
-//          PATCH /api/tasks/:id  DELETE /api/tasks/:id
-// Proxies to Supabase REST API using env vars injected by Vercel
+// Translates camelCase (React bundle) ↔ snake_case (Supabase)
 
-const SUPABASE_URL  = process.env.SUPABASE_URL;
-const SUPABASE_KEY  = process.env.SUPABASE_ANON_KEY;
-const TABLE         = 'tasks';
+const SUPABASE_URL = process.env.SUPABASE_URL;
+const SUPABASE_KEY = process.env.SUPABASE_ANON_KEY;
 
-function supabaseHeaders() {
+function headers() {
   return {
     'Content-Type': 'application/json',
     'apikey': SUPABASE_KEY,
@@ -15,76 +12,93 @@ function supabaseHeaders() {
   };
 }
 
+// camelCase → snake_case for writing TO Supabase
+function toSnake(obj) {
+  const map = {
+    dueDate:   'due_date',
+    projectId: 'project_id',
+    areaId:    'area_id',
+    createdAt: 'created_at',
+  };
+  const out = {};
+  for (const [k, v] of Object.entries(obj)) {
+    out[map[k] || k] = v;
+  }
+  return out;
+}
+
+// snake_case → camelCase for returning TO the React bundle
+function toCamel(obj) {
+  const map = {
+    due_date:   'dueDate',
+    project_id: 'projectId',
+    area_id:    'areaId',
+    created_at: 'createdAt',
+  };
+  const out = {};
+  for (const [k, v] of Object.entries(obj)) {
+    out[map[k] || k] = v;
+  }
+  return out;
+}
+
 export default async function handler(req, res) {
-  // CORS — allow the Vercel front-end origin
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'GET,POST,PATCH,DELETE,OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
   if (req.method === 'OPTIONS') return res.status(200).end();
 
-  // Extract optional :id from the URL  (/api/tasks/42)
+  // Extract :id from URL  e.g. /api/tasks/42
   const parts = req.url.split('?')[0].split('/').filter(Boolean);
-  // parts = ['api', 'tasks'] or ['api', 'tasks', '42']
   const id = parts[2] ?? null;
 
   try {
-    // ── GET /api/tasks ───────────────────────────────────────────────
+    // ── GET /api/tasks ──────────────────────────────────────────────
     if (req.method === 'GET' && !id) {
       const r = await fetch(
-        `${SUPABASE_URL}/rest/v1/${TABLE}?order=position.asc,created_at.desc`,
-        { headers: supabaseHeaders() }
+        `${SUPABASE_URL}/rest/v1/tasks?order=position.asc,created_at.desc`,
+        { headers: headers() }
       );
       const data = await r.json();
       if (!r.ok) return res.status(r.status).json(data);
-      return res.status(200).json(data);
+      return res.status(200).json(data.map(toCamel));
     }
 
-    // ── POST /api/tasks ──────────────────────────────────────────────
+    // ── POST /api/tasks ─────────────────────────────────────────────
     if (req.method === 'POST' && !id) {
-      const body = req.body;
-      const r = await fetch(
-        `${SUPABASE_URL}/rest/v1/${TABLE}`,
-        {
-          method: 'POST',
-          headers: { ...supabaseHeaders(), 'Prefer': 'return=representation' },
-          body: JSON.stringify(body),
-        }
-      );
+      const body = toSnake(req.body);
+      const r = await fetch(`${SUPABASE_URL}/rest/v1/tasks`, {
+        method: 'POST',
+        headers: { ...headers(), 'Prefer': 'return=representation' },
+        body: JSON.stringify(body),
+      });
       const data = await r.json();
       if (!r.ok) return res.status(r.status).json(data);
-      // Supabase returns an array; return the first item
-      return res.status(201).json(Array.isArray(data) ? data[0] : data);
+      const row = Array.isArray(data) ? data[0] : data;
+      return res.status(201).json(toCamel(row));
     }
 
-    // ── PATCH /api/tasks/:id ─────────────────────────────────────────
+    // ── PATCH /api/tasks/:id ────────────────────────────────────────
     if (req.method === 'PATCH' && id) {
-      const body = req.body;
-      const r = await fetch(
-        `${SUPABASE_URL}/rest/v1/${TABLE}?id=eq.${id}`,
-        {
-          method: 'PATCH',
-          headers: { ...supabaseHeaders(), 'Prefer': 'return=representation' },
-          body: JSON.stringify(body),
-        }
-      );
+      const body = toSnake(req.body);
+      const r = await fetch(`${SUPABASE_URL}/rest/v1/tasks?id=eq.${id}`, {
+        method: 'PATCH',
+        headers: { ...headers(), 'Prefer': 'return=representation' },
+        body: JSON.stringify(body),
+      });
       const data = await r.json();
       if (!r.ok) return res.status(r.status).json(data);
-      return res.status(200).json(Array.isArray(data) ? data[0] : data);
+      const row = Array.isArray(data) ? data[0] : data;
+      return res.status(200).json(toCamel(row));
     }
 
-    // ── DELETE /api/tasks/:id ────────────────────────────────────────
+    // ── DELETE /api/tasks/:id ───────────────────────────────────────
     if (req.method === 'DELETE' && id) {
-      const r = await fetch(
-        `${SUPABASE_URL}/rest/v1/${TABLE}?id=eq.${id}`,
-        {
-          method: 'DELETE',
-          headers: supabaseHeaders(),
-        }
-      );
-      if (!r.ok) {
-        const data = await r.json();
-        return res.status(r.status).json(data);
-      }
+      const r = await fetch(`${SUPABASE_URL}/rest/v1/tasks?id=eq.${id}`, {
+        method: 'DELETE',
+        headers: headers(),
+      });
+      if (!r.ok) return res.status(r.status).json(await r.json());
       return res.status(200).json({ success: true });
     }
 

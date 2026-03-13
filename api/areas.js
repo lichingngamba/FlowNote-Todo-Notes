@@ -1,11 +1,9 @@
 // api/areas.js — Vercel Serverless Function
-// Handles: GET /api/areas  POST /api/areas
 
-const SUPABASE_URL  = process.env.SUPABASE_URL;
-const SUPABASE_KEY  = process.env.SUPABASE_ANON_KEY;
-const TABLE         = 'areas';
+const SUPABASE_URL = process.env.SUPABASE_URL;
+const SUPABASE_KEY = process.env.SUPABASE_ANON_KEY;
 
-function supabaseHeaders() {
+function headers() {
   return {
     'Content-Type': 'application/json',
     'apikey': SUPABASE_KEY,
@@ -20,28 +18,22 @@ export default async function handler(req, res) {
   if (req.method === 'OPTIONS') return res.status(200).end();
 
   try {
-    // ── GET /api/areas ───────────────────────────────────────────────
     if (req.method === 'GET') {
       const r = await fetch(
-        `${SUPABASE_URL}/rest/v1/${TABLE}?order=id.asc`,
-        { headers: supabaseHeaders() }
+        `${SUPABASE_URL}/rest/v1/areas?order=id.asc`,
+        { headers: headers() }
       );
       const data = await r.json();
       if (!r.ok) return res.status(r.status).json(data);
       return res.status(200).json(data);
     }
 
-    // ── POST /api/areas ──────────────────────────────────────────────
     if (req.method === 'POST') {
-      const body = req.body;
-      const r = await fetch(
-        `${SUPABASE_URL}/rest/v1/${TABLE}`,
-        {
-          method: 'POST',
-          headers: { ...supabaseHeaders(), 'Prefer': 'return=representation' },
-          body: JSON.stringify(body),
-        }
-      );
+      const r = await fetch(`${SUPABASE_URL}/rest/v1/areas`, {
+        method: 'POST',
+        headers: { ...headers(), 'Prefer': 'return=representation' },
+        body: JSON.stringify(req.body),
+      });
       const data = await r.json();
       if (!r.ok) return res.status(r.status).json(data);
       return res.status(201).json(Array.isArray(data) ? data[0] : data);
