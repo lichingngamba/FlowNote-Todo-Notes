@@ -30,7 +30,8 @@
       }
     }
     </script>
-    <link rel="stylesheet" crossorigin href="./assets/index-AIi2cw5bQ.css">
+    <!-- FIXED: was index-AIi2cw5bQ.css (extra Q), correct filename is index-AIi2cw5b.css -->
+    <link rel="stylesheet" crossorigin href="./assets/index-AIi2cw5b.css">
   </head>
   <body>
     <div id="login-overlay" style="position:fixed;inset:0;z-index:9999;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,.35);font-family:system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;">
@@ -39,7 +40,7 @@
         <p style="margin:0 0 10px;font-size:.95rem;color:#333;">Enter your app password.</p>
         <input id="login-password" type="password" placeholder="Password" style="width:100%;padding:10px 12px;border:1px solid #ddd;border-radius:8px;font-size:1rem;margin-bottom:10px;outline:none;" />
         <button id="login-btn" style="width:100%;padding:10px 12px;border:none;border-radius:8px;background:#0f62fe;color:#fff;font-size:0.95rem;font-weight:600;cursor:pointer;">Login</button>
-        <div id="login-error" style="color:#b00020;margin-top:10px;min-height:1.2rem;">Use password from Vercel env var `FLOWNOTE_LOGIN_PASSWORD` (default `notepad`).</div>
+        <div id="login-error" style="color:#b00020;margin-top:10px;min-height:1.2rem;">Set your password via <code>FLOWNOTE_LOGIN_PASSWORD</code> env var in Vercel.</div>
       </div>
     </div>
 
@@ -57,11 +58,12 @@
       function unlock() {
         loginScreen.style.display = 'none';
         root.style.display = 'block';
-        localStorage.setItem(sessionKey, '1');
+        sessionStorage.setItem(sessionKey, '1');
       }
 
       function fail(msg) {
         error.textContent = msg;
+        input.focus();
       }
 
       button.addEventListener('click', () => {
@@ -69,7 +71,7 @@
         if (value === secret) {
           unlock();
         } else {
-          fail('Invalid password. Use `notepad` by default.');
+          fail('Incorrect password. Try again.');
         }
       });
 
@@ -77,7 +79,8 @@
         if (e.key === 'Enter') button.click();
       });
 
-      if (localStorage.getItem(sessionKey) === '1') unlock();
+      // Auto-unlock if already authenticated this session
+      if (sessionStorage.getItem(sessionKey) === '1') unlock();
     </script>
     <script type="module" crossorigin src="./assets/index-CV2p19bQ.js"></script>
   </body>
