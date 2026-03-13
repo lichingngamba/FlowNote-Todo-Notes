@@ -10,7 +10,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>FlowNote — Todo & Notes</title>
     <meta name="description" content="FlowNote combines the best of todo lists and note-taking in one focused app." />
-    <link rel="icon" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA2NCA2NCI+PHJlY3Qgd2lkdGg9IjY0IiBoZWlnaHQ9IjY0IiBmaWxsPSIjMTBiOTgxIi8+PHRleHQgeD0iMzIiIHk9IjQyIiBmb250LXNpemU9IjI4IiBmb250LXdlaWdodD0iYm9sZCIgZmlsbD0id2hpdGUiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZvbnQtZmFtaWx5PSJBcmlhbCwgc2Fucy1zZXJpZiI+Rk48L3RleHQ+PC9zdmc+" />
 
     <!-- Fonts: General Sans (body) + JetBrains Mono (code) -->
     <link href="https://api.fontshare.com/v2/css?f[]=general-sans@400,500,600,700&display=swap" rel="stylesheet">
@@ -41,6 +40,7 @@
         <p style="margin:0 0 10px;font-size:.95rem;color:#333;">Enter your app password.</p>
         <input id="login-password" type="password" placeholder="Password" style="width:100%;padding:10px 12px;border:1px solid #ddd;border-radius:8px;font-size:1rem;margin-bottom:10px;outline:none;" />
         <button id="login-btn" style="width:100%;padding:10px 12px;border:none;border-radius:8px;background:#0f62fe;color:#fff;font-size:0.95rem;font-weight:600;cursor:pointer;">Login</button>
+        <div id="login-error" style="color:#b00020;margin-top:10px;min-height:1.2rem;">Set your password via <code>FLOWNOTE_LOGIN_PASSWORD</code> env var in Vercel.</div>
       </div>
     </div>
 

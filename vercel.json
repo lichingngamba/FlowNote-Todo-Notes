@@ -2,5 +2,14 @@
   "buildCommand": "node build.js",
   "outputDirectory": ".",
   "installCommand": "npm install",
-  "framework": null
+  "framework": null,
+  "functions": {
+    "api/*.js": {
+      "runtime": "nodejs18.x"
+    }
+  },
+  "rewrites": [
+    { "source": "/api/tasks/:id", "destination": "/api/tasks" },
+    { "source": "/api/notes/:id", "destination": "/api/notes" }
+  ]
 }
